@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Neon Hack – Operation Crease</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Intro Screen with typewriter effect and narrative -->
+  <div id="introScreen" class="screen">
+    <div id="typewriterText"></div>
+    <!-- "Enter Operations Hub" appears after typewriter finishes -->
+    <div id="startButton" class="neon-button" style="display: none;">Enter Operations Hub █</div>
+  </div>
+  
+  <!-- Operations Hub Screen (between missions) -->
+  <div id="hubScreen" class="screen" style="display: none;">
+    <h2>🚀 OPERATIONS HUB</h2>
+    <div id="missionDetails"></div>
+    <div class="hub-buttons">
+      <div id="beginMissionButton" class="neon-button">Begin Next Mission █</div>
+      <div id="viewLogsButton" class="neon-button">View Intel Logs █</div>
+      <div id="exitButton" class="neon-button">Exit to Main Menu █</div>
+    </div>
+  </div>
+  
+  <!-- Terminal Screen for hacking gameplay -->
+  <div id="terminalScreen" class="screen" style="display: none;">
+    <!-- AI Trace Progress Bar -->
+    <div id="traceContainer">
+      <div id="traceBar"></div>
+    </div>
+    <!-- Hacking Terminal -->
+    <div id="terminal">
+      <div id="output"></div>
+      <div id="input-line">
+        <span class="prompt">>_</span>
+        <input type="text" id="command-input" autofocus autocomplete="off">
+      </div>
+    </div>
+  </div>
+  
+  <!-- Optional: Typing sound effect (place typing.mp3 in your folder) -->
+  <audio id="typing-sound" src="typing.mp3"></audio>
+  
+  <script src="script.js"></script>
+</body>
+</html>
