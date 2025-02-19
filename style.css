@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
 /* Global Styles */
+* {
+  box-sizing: border-box;
+}
 body {
   background-color: black;
   color: #00FF00;
@@ -11,23 +14,47 @@ body {
   text-shadow: 0 0 5px #00FF00;
 }
 
-/* Screen Containers */
-.screen {
-  width: 80%;
-  margin: 50px auto;
-  text-align: center;
+/* CRT Scanline Effect */
+#scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,255,0,0.05) 2px,
+    rgba(0,255,0,0.05) 4px
+  );
+  z-index: 999;
 }
 
-/* Intro Screen & Typewriter Text */
+/* Screen Container */
+.screen {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+/* Intro Screen & Typewriter */
 #typewriterText {
   font-size: 1.4em;
   line-height: 1.5em;
   white-space: pre-wrap;
   min-height: 200px;
+  width: 80%;
   margin-bottom: 20px;
 }
 
-/* Neon-Glow Text Buttons */
+/* Neon-Glow Buttons */
 .neon-button {
   color: #00FF00;
   cursor: pointer;
@@ -45,30 +72,165 @@ body {
   text-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00;
 }
 
-/* Hub Screen Styles */
-#hubScreen h2 {
-  margin-bottom: 20px;
+/* Main Menu: Pixel-Art Cityscape */
+#mainMenuScreen {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100vh;
 }
-#missionDetails {
-  margin-bottom: 30px;
-  font-size: 1.1em;
-  line-height: 1.4em;
+#cityScape {
+  width: 80%;
+  height: 100%;
+  position: relative;
+  background: url('https://via.placeholder.com/800x600/000000/003300?text=Cyberpunk+Cityscape') center/cover no-repeat;
+  border: 2px solid #00FF00;
+  overflow: hidden;
+}
+#cityCamera {
+  width: 200%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: cameraPan 4s ease-out forwards;
+}
+@keyframes cameraPan {
+  0% { transform: scale(2) translateX(0); }
+  100% { transform: scale(1) translateX(0); }
+}
+
+/* Background Animations */
+#backgroundAnimations {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+.flyingCar {
+  position: absolute;
+  top: 20%;
+  left: -100px;
+  width: 50px;
+  height: 30px;
+  background: url('https://via.placeholder.com/50x30/00FF00/000000?text=Car') center/contain no-repeat;
+  animation: flyCar 10s linear infinite;
+}
+@keyframes flyCar {
+  0% { left: -100px; }
+  100% { left: 110%; }
+}
+.lightning {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background: rgba(255,255,255,0.8);
+  opacity: 0;
+  animation: lightningFlash 5s linear infinite;
+}
+@keyframes lightningFlash {
+  0%, 90%, 100% { opacity: 0; }
+  92% { opacity: 1; }
+  93% { opacity: 0; }
+}
+
+/* Mission Islands: Pixel-Art City Districts */
+.missionIsland {
+  width: 150px;
+  height: 150px;
+  background: url('https://via.placeholder.com/150?text=City') center/cover no-repeat;
+  border: 2px solid #00FF00;
+  box-shadow: 0 0 10px #00FF00;
+  position: absolute;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0.4; /* Locked by default */
+}
+.missionIsland:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+  animation: glitch 0.5s;
+}
+@keyframes glitch {
+  0% { transform: translate(0,0); }
+  20% { transform: translate(-2px,2px); }
+  40% { transform: translate(2px,-2px); }
+  60% { transform: translate(-2px,2px); }
+  80% { transform: translate(2px,-2px); }
+  100% { transform: translate(0,0); }
+}
+.islandLabel {
+  position: absolute;
+  bottom: 5px;
+  width: 100%;
+  text-align: center;
+  font-size: 1em;
+  color: #00FF00;
+  text-shadow: 0 0 5px #00FF00;
+  pointer-events: none;
+}
+/* Positioning each mission island */
+#mission1 { top: 20%; left: 10%; }
+#mission2 { top: 40%; left: 35%; }
+#mission3 { top: 10%; left: 60%; }
+#mission4 { top: 50%; left: 80%; }
+#mission5 { top: 70%; left: 50%; }
+/* Status styles */
+.activeIsland { opacity: 1; }
+.completedIsland { opacity: 1; filter: brightness(1.3); }
+
+/* Data Pipeline: Connecting Line */
+#dataPipeline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: transparent;
+}
+#dataPipeline:after {
+  content: "";
+  position: absolute;
+  width: 80%;
+  height: 2px;
+  background: #00FF00;
+  top: 50%;
+  left: 10%;
+  animation: pulseLine 2s infinite;
+}
+@keyframes pulseLine {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* Menu Buttons (Right Side) */
+#menuButtons {
+  width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 2px solid #00FF00;
 }
 
 /* Terminal Screen */
 #terminalScreen {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
-
-/* AI Trace Progress Bar */
 #traceContainer {
   width: 80%;
   height: 20px;
   background-color: #333;
   border: 2px solid #00FF00;
   border-radius: 5px;
-  margin: 20px auto;
-  position: relative;
+  margin-top: 20px;
 }
 #traceBar {
   height: 100%;
@@ -77,12 +239,10 @@ body {
   border-radius: 5px;
   transition: width 0.5s, background-color 0.5s;
 }
-
-/* Terminal Styles */
 #terminal {
   width: 80%;
   height: 60vh;
-  margin: 0 auto;
+  margin: 20px auto;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.9);
   border: 2px solid #00FF00;
@@ -94,6 +254,7 @@ body {
   height: calc(100% - 40px);
   overflow-y: auto;
   padding-bottom: 10px;
+  text-align: left;
 }
 #input-line {
   display: flex;
@@ -109,4 +270,23 @@ body {
   font-size: 16px;
   width: 100%;
   outline: none;
+}
+
+/* Crease Freed Screen */
+#creaseFreedScreen h1 {
+  margin-bottom: 10px;
+}
+#creaseFreedScreen p {
+  margin-bottom: 20px;
+}
+#creaseImage {
+  width: 300px;
+  height: auto;
+  opacity: 0;
+  animation: glitchFadeIn 3s forwards;
+}
+@keyframes glitchFadeIn {
+  0% { opacity: 0; transform: scale(0.8) rotate(5deg); }
+  50% { opacity: 0.5; transform: scale(1.1) rotate(-3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
 }

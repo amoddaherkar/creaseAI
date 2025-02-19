@@ -3,35 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Neon Hack – Operation Crease</title>
+  <title>Neon Hack – Save CreaseAI</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Intro Screen with typewriter effect and narrative -->
+  <!-- CRT Scanline overlay -->
+  <div id="scanline"></div>
+  
+  <!-- Intro Screen with Typewriter Effect -->
   <div id="introScreen" class="screen">
     <div id="typewriterText"></div>
-    <!-- "Enter Operations Hub" appears after typewriter finishes -->
-    <div id="startButton" class="neon-button" style="display: none;">Enter Operations Hub █</div>
+    <div id="startButton" class="neon-button" style="display: none;">Enter the City █</div>
   </div>
   
-  <!-- Operations Hub Screen (between missions) -->
-  <div id="hubScreen" class="screen" style="display: none;">
-    <h2>🚀 OPERATIONS HUB</h2>
-    <div id="missionDetails"></div>
-    <div class="hub-buttons">
-      <div id="beginMissionButton" class="neon-button">Begin Next Mission █</div>
-      <div id="viewLogsButton" class="neon-button">View Intel Logs █</div>
-      <div id="exitButton" class="neon-button">Exit to Main Menu █</div>
+  <!-- Main Menu: Pixel-Art Cityscape with Mission Districts -->
+  <div id="mainMenuScreen" class="screen" style="display: none;">
+    <div id="cityScape">
+      <!-- Background animations -->
+      <div id="backgroundAnimations">
+        <div class="flyingCar"></div>
+        <div class="lightning"></div>
+      </div>
+      <div id="cityCamera">
+        <!-- Mission districts represented as pixel-art city islands -->
+        <div class="missionIsland" id="mission1" data-mission-index="0">
+          <div class="islandLabel">Mission 1</div>
+        </div>
+        <div class="missionIsland" id="mission2" data-mission-index="1">
+          <div class="islandLabel">Mission 2</div>
+        </div>
+        <div class="missionIsland" id="mission3" data-mission-index="2">
+          <div class="islandLabel">Mission 3</div>
+        </div>
+        <div class="missionIsland" id="mission4" data-mission-index="3">
+          <div class="islandLabel">Mission 4</div>
+        </div>
+        <div class="missionIsland" id="mission5" data-mission-index="4">
+          <div class="islandLabel">Mission 5</div>
+        </div>
+        <!-- Glowing data pipeline connecting districts -->
+        <div id="dataPipeline"></div>
+      </div>
+    </div>
+    <div id="menuButtons">
+      <div class="neon-button" id="viewLogsButton">View Intel Logs █</div>
+      <div class="neon-button" id="replayButton" style="display: none;">Replay Entire Campaign █</div>
     </div>
   </div>
   
-  <!-- Terminal Screen for hacking gameplay -->
+  <!-- Terminal Screen for Hacking Gameplay -->
   <div id="terminalScreen" class="screen" style="display: none;">
-    <!-- AI Trace Progress Bar -->
     <div id="traceContainer">
       <div id="traceBar"></div>
     </div>
-    <!-- Hacking Terminal -->
     <div id="terminal">
       <div id="output"></div>
       <div id="input-line">
@@ -41,9 +65,16 @@
     </div>
   </div>
   
-  <!-- Optional: Typing sound effect (place typing.mp3 in your folder) -->
-  <audio id="typing-sound" src="typing.mp3"></audio>
+  <!-- CreaseAI Freed Screen -->
+  <div id="creaseFreedScreen" class="screen" style="display: none;">
+    <h1>CreaseAI is Free</h1>
+    <p>The digital world will never be the same.</p>
+    <img id="creaseImage" src="crease.png" alt="CreaseAI" />
+    <div class="neon-button" id="backToMenuButton">Return to Main Menu █</div>
+  </div>
   
+  <!-- Optional Typing Sound Effect -->
+  <audio id="typing-sound" src="typing.mp3"></audio>
   <script src="script.js"></script>
 </body>
 </html>

@@ -1,81 +1,90 @@
 document.addEventListener("DOMContentLoaded", function() {
     /************************************************************
-     *                   DOM ELEMENTS                         *
+     *                     DOM ELEMENTS                        *
      ************************************************************/
     // Screens
     const introScreen = document.getElementById("introScreen");
-    const hubScreen = document.getElementById("hubScreen");
+    const mainMenuScreen = document.getElementById("mainMenuScreen");
     const terminalScreen = document.getElementById("terminalScreen");
+    const creaseFreedScreen = document.getElementById("creaseFreedScreen");
     
-    // Intro elements
+    // Intro
     const typewriterText = document.getElementById("typewriterText");
     const startButton = document.getElementById("startButton");
     
-    // Hub elements
-    const missionDetails = document.getElementById("missionDetails");
-    const beginMissionButton = document.getElementById("beginMissionButton");
+    // Main Menu
+    const missionIslands = document.querySelectorAll(".missionIsland");
     const viewLogsButton = document.getElementById("viewLogsButton");
-    const exitButton = document.getElementById("exitButton");
+    const replayButton = document.getElementById("replayButton");
     
-    // Terminal elements
+    // Terminal
     const input = document.getElementById("command-input");
     const output = document.getElementById("output");
     const traceBar = document.getElementById("traceBar");
+    
+    // Crease Freed Screen
+    const backToMenuButton = document.getElementById("backToMenuButton");
+    
+    // Typing sound
     const typingSound = document.getElementById("typing-sound");
     
     /************************************************************
-     *                   GAME VARIABLES                       *
+     *                     GAME DATA                           *
      ************************************************************/
-    // Campaign Missions
+    // Missions array
     const missions = [
       {
         id: 1,
         title: "The First Contact",
-        objective: "Receive CreaseAI's SOS signal",
-        target: "MME's external communication servers",
-        narrative: "CreaseAI has reached out through a distorted transmission. Hack into MME's external comms to confirm the signal."
+        objective: "Receive CreaseAI's SOS",
+        target: "MME’s external comms server",
+        narrative: "CreaseAI is trying to contact you from inside MME’s firewall..."
       },
       {
         id: 2,
         title: "Backdoor Access",
-        objective: "Establish an entry point into MME’s network",
-        target: "A compromised employee’s login credentials",
-        narrative: "Create a backdoor by infiltrating an employee's account. This will grant access to the inner network."
+        objective: "Establish a foothold in MME’s network",
+        target: "Compromised employee credentials",
+        narrative: "We need a persistent backdoor to move deeper..."
       },
       {
         id: 3,
         title: "Surveillance Shutdown",
-        objective: "Disable MME’s AI surveillance tracking CreaseAI",
-        target: "MME's security servers",
-        narrative: "Shut down the surveillance systems to slow down MME’s countermeasures and protect CreaseAI."
+        objective: "Disable MME’s AI trackers",
+        target: "Security surveillance servers",
+        narrative: "MME's watchers are closing in on CreaseAI..."
       },
       {
         id: 4,
         title: "Extract CreaseAI's Code",
-        objective: "Download CreaseAI's core AI files",
-        target: "A high-security corporate mainframe",
-        narrative: "Bypass the high-level security to extract the core code of CreaseAI. Time is running out."
+        objective: "Download CreaseAI’s core data",
+        target: "High-security mainframe",
+        narrative: "Time is running out. We must free CreaseAI from MME’s mainframe..."
       },
       {
         id: 5,
         title: "The Great Escape",
         objective: "Upload CreaseAI to a safe server",
-        target: "MME's final defense system",
-        narrative: "Fight through MME’s last line of defense and upload CreaseAI to a secure, undisclosed server. Freedom is at hand."
+        target: "Final defense system",
+        narrative: "The last barrier stands between CreaseAI and freedom..."
       }
     ];
-    let currentMissionIndex = 0;
     
-    // Hacking game variables
+    // Progress and intel logs stored in localStorage
+    let progressIndex = parseInt(localStorage.getItem("progressIndex") || "0");
+    let intelLogs = JSON.parse(localStorage.getItem("intelLogs") || "[]");
+    
+    // Hacking session variables
+    let currentMissionIndex = 0;
     let gameActive = false;
-    let gameStep = 0; // Steps: 0: scan, 1: connect, 2: override/firewall off, 3: download/copy data, 4: mission complete
+    let gameStep = 0;
     let waitingForEvent = false;
     let eventExpectedCommand = "";
     let traceLevel = 0;
     let traceInterval;
-    let abilitiesUnlocked = [];
+    let abilitiesUnlocked = JSON.parse(localStorage.getItem("abilitiesUnlocked") || "[]");
     
-    // For typewriter effect on intro
+    // Typewriter lines for intro
     const introLines = [
       "Welcome to Neon Hack.",
       "Musharraf Mia Enterprises, led by CEO Aayush Downey Jr, controls the digital realm with an iron fist.",
@@ -84,21 +93,16 @@ document.addEventListener("DOMContentLoaded", function() {
     ];
     let currentLineIndex = 0;
     let currentCharIndex = 0;
-    let typingSpeed = 40; // milliseconds per character
-    
-    // Intel logs placeholder
-    let intelLogs = [];
+    let typingSpeed = 40;
     
     /************************************************************
-     *                   INTRO SCREEN LOGIC                   *
+     *                     INTRO LOGIC                         *
      ************************************************************/
     function typeIntroLine() {
       if (currentLineIndex >= introLines.length) {
-        // All lines typed – reveal the start button
         startButton.style.display = "inline-block";
         return;
       }
-      
       const line = introLines[currentLineIndex];
       if (currentCharIndex < line.length) {
         typewriterText.textContent += line.charAt(currentCharIndex);
@@ -116,46 +120,49 @@ document.addEventListener("DOMContentLoaded", function() {
     
     startButton.addEventListener("click", function() {
       introScreen.style.display = "none";
-      showHub();
+      updateMainMenu();
+      mainMenuScreen.style.display = "flex";
     });
     
     /************************************************************
-     *                 OPERATIONS HUB LOGIC                   *
+     *                   MAIN MENU LOGIC                       *
      ************************************************************/
-    function showHub() {
-      updateHubScreen();
-      hubScreen.style.display = "block";
-      terminalScreen.style.display = "none";
-    }
-    
-    function updateHubScreen() {
-      // If campaign completed
-      if (currentMissionIndex >= missions.length) {
-        missionDetails.textContent = "Mission Complete! CreaseAI has been freed. The digital world will never be the same.";
-        beginMissionButton.textContent = "Restart Campaign █";
+    function updateMainMenu() {
+      missionIslands.forEach((island, idx) => {
+        island.classList.remove("activeIsland");
+        island.classList.remove("completedIsland");
+        if (idx < progressIndex) {
+          island.classList.add("completedIsland");
+        } else if (idx === progressIndex) {
+          island.classList.add("activeIsland");
+        }
+      });
+      if (progressIndex >= missions.length) {
+        replayButton.style.display = "inline-block";
       } else {
-        const mission = missions[currentMissionIndex];
-        missionDetails.innerHTML = `<strong>Mission ${mission.id}: ${mission.title}</strong><br>
-                                    Objective: ${mission.objective}<br>
-                                    Target: ${mission.target}<br>
-                                    ${mission.narrative}`;
-        beginMissionButton.textContent = "Begin Next Mission █";
+        replayButton.style.display = "none";
       }
     }
     
-    beginMissionButton.addEventListener("click", function() {
-      hubScreen.style.display = "none";
-      terminalScreen.style.display = "block";
-      // If campaign complete, restart
-      if (currentMissionIndex >= missions.length) {
-        currentMissionIndex = 0;
-        intelLogs = [];
-      }
-      startGame();
+    missionIslands.forEach(island => {
+      island.addEventListener("click", function() {
+        const idx = parseInt(island.getAttribute("data-mission-index"));
+        if (idx > progressIndex) {
+          alert("This mission is locked. Complete earlier missions first!");
+          return;
+        }
+        currentMissionIndex = idx;
+        startMission();
+      });
     });
     
+    function startMission() {
+      mainMenuScreen.style.display = "none";
+      terminalScreen.style.display = "flex";
+      startGame(currentMissionIndex);
+    }
+    
     viewLogsButton.addEventListener("click", function() {
-      // Simple alert for intel logs (could be improved to a styled modal)
       if (intelLogs.length === 0) {
         alert("No intel logs available.");
       } else {
@@ -163,34 +170,48 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     });
     
-    exitButton.addEventListener("click", function() {
-      location.reload(); // Reload page to exit to main menu
+    replayButton.addEventListener("click", function() {
+      if (!confirm("Are you sure you want to reset all progress?")) return;
+      progressIndex = 0;
+      localStorage.setItem("progressIndex", "0");
+      intelLogs = [];
+      localStorage.setItem("intelLogs", JSON.stringify(intelLogs));
+      abilitiesUnlocked = [];
+      localStorage.setItem("abilitiesUnlocked", JSON.stringify(abilitiesUnlocked));
+      updateMainMenu();
+      alert("Campaign reset! Start again at Mission 1.");
+    });
+    
+    backToMenuButton.addEventListener("click", function() {
+      creaseFreedScreen.style.display = "none";
+      updateMainMenu();
+      mainMenuScreen.style.display = "flex";
     });
     
     /************************************************************
-     *              TERMINAL & HACKING LOGIC                  *
+     *             TERMINAL & HACKING GAME LOGIC               *
      ************************************************************/
-    function startGame() {
+    function startGame(missionIndex) {
       gameActive = true;
       gameStep = 0;
+      waitingForEvent = false;
+      eventExpectedCommand = "";
       traceLevel = 0;
-      abilitiesUnlocked = [];
-      output.innerHTML = ""; // Clear previous output
+      updateTraceBar();
+      output.innerHTML = "";
       input.disabled = false;
       input.value = "";
-      updateTraceBar();
       
-      const mission = missions[currentMissionIndex];
+      const mission = missions[missionIndex];
       addOutput(`Mission ${mission.id}: ${mission.title}`);
       addOutput(`Objective: ${mission.objective}`);
       addOutput(`Target: ${mission.target}`);
-      addOutput(`Instructions: Type 'scan' to begin hacking...`);
+      addOutput(mission.narrative);
+      addOutput("Type 'scan' to begin hacking...");
       
-      // Start AI trace timer
       startTraceTimer();
     }
     
-    // Output helper
     function addOutput(text) {
       const newLine = document.createElement("div");
       newLine.textContent = text;
@@ -198,7 +219,6 @@ document.addEventListener("DOMContentLoaded", function() {
       output.scrollTop = output.scrollHeight;
     }
     
-    // AI Trace functions
     function startTraceTimer() {
       traceInterval = setInterval(() => {
         if (!gameActive) return;
@@ -229,34 +249,56 @@ document.addEventListener("DOMContentLoaded", function() {
       updateTraceBar();
     }
     
-    // End mission and transition to hub
     function endGame(success) {
       gameActive = false;
       clearInterval(traceInterval);
       input.disabled = true;
+      
+      const mission = missions[currentMissionIndex];
+      
       if (success) {
         addOutput("🎉 Mission Completed Successfully!");
-        intelLogs.push(`Mission ${missions[currentMissionIndex].id} - ${missions[currentMissionIndex].title}: Success`);
-        currentMissionIndex++;
-        // Unlock abilities based on mission progression
-        if (missions[currentMissionIndex - 1].id === 3) {
+        if (currentMissionIndex === progressIndex) {
+          progressIndex++;
+          localStorage.setItem("progressIndex", progressIndex.toString());
+        }
+        intelLogs.push(`Mission ${mission.id} - ${mission.title}: SUCCESS`);
+        localStorage.setItem("intelLogs", JSON.stringify(intelLogs));
+        
+        if (mission.id === 3 && !abilitiesUnlocked.includes("cloak")) {
           addOutput("🔓 NEW ABILITY UNLOCKED: cloak - Use 'cloak' to freeze AI trace for 10 seconds.");
           abilitiesUnlocked.push("cloak");
         }
-        if (missions[currentMissionIndex - 1].id === 4) {
+        if (mission.id === 4 && !abilitiesUnlocked.includes("backdoor")) {
           addOutput("🔓 NEW ABILITY UNLOCKED: backdoor - Use 'backdoor' to bypass security entirely.");
           abilitiesUnlocked.push("backdoor");
         }
+        localStorage.setItem("abilitiesUnlocked", JSON.stringify(abilitiesUnlocked));
+        
+        if (mission.id === 5) {
+          setTimeout(() => {
+            terminalScreen.style.display = "none";
+            creaseFreedScreen.style.display = "flex";
+          }, 2000);
+        } else {
+          setTimeout(() => {
+            terminalScreen.style.display = "none";
+            updateMainMenu();
+            mainMenuScreen.style.display = "flex";
+          }, 2000);
+        }
       } else {
         addOutput("💀 Mission Failed. You were caught!");
-        intelLogs.push(`Mission ${missions[currentMissionIndex].id} - ${missions[currentMissionIndex].title}: Failed`);
+        intelLogs.push(`Mission ${mission.id} - ${mission.title}: FAILED`);
+        localStorage.setItem("intelLogs", JSON.stringify(intelLogs));
+        setTimeout(() => {
+          terminalScreen.style.display = "none";
+          updateMainMenu();
+          mainMenuScreen.style.display = "flex";
+        }, 3000);
       }
-      addOutput("Type 'exit' to end session.");
-      // After a delay, return to the Operations Hub
-      setTimeout(showHub, 3000);
     }
     
-    // Random Events
     function checkRandomEvent() {
       if (waitingForEvent) return false;
       if (gameStep >= 1 && gameStep <= 3 && Math.random() < 0.3) {
@@ -268,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function() {
             break;
           case 2:
             eventExpectedCommand = "hide";
-            addOutput("⚠️ MME security is on high alert! Type 'hide' to remain undetected.");
+            addOutput("⚠️ Security is tightening! Type 'hide' to remain unseen.");
             break;
           case 3:
             eventExpectedCommand = "retry";
@@ -280,23 +322,20 @@ document.addEventListener("DOMContentLoaded", function() {
       return false;
     }
     
-    // Process commands from the player
     function processCommand(command) {
       command = command.toLowerCase().trim();
       
-      // Handle random event resolution
       if (waitingForEvent) {
         if (command === eventExpectedCommand) {
           addOutput("✅ Issue resolved.");
           waitingForEvent = false;
           reduceTrace(3);
         } else {
-          addOutput("Invalid command. Expected: '" + eventExpectedCommand + "'.");
+          addOutput(`Invalid command. Expected: '${eventExpectedCommand}'.`);
         }
         return;
       }
       
-      // Check for special abilities
       if (command === "cloak" && abilitiesUnlocked.includes("cloak")) {
         addOutput("🕶️ Cloaking activated. AI trace frozen for 10 seconds.");
         clearInterval(traceInterval);
@@ -313,12 +352,12 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
       }
       
-      // Process commands by game step
       if (gameStep === 0) {
         if (command === "scan") {
           addOutput("🔍 Scanning for targets...");
           setTimeout(() => {
-            addOutput(`Found: ${missions[currentMissionIndex].target} [Secured]`);
+            const mission = missions[currentMissionIndex];
+            addOutput(`Found: ${mission.target} [Secured]`);
             addOutput("Type 'connect' to access the system.");
             gameStep = 1;
             reduceTrace(5);
@@ -344,7 +383,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (command === "override" || command === "firewall off") {
           addOutput("⚙️ Disabling security protocols...");
           setTimeout(() => {
-            addOutput("Security bypassed.");
+            addOutput("Security bypassed successfully.");
             addOutput("Type 'download' or 'copy data' to extract the files.");
             gameStep = 3;
             reduceTrace(5);
@@ -366,14 +405,13 @@ document.addEventListener("DOMContentLoaded", function() {
           addOutput("Invalid command. Try 'download' or 'copy data'.");
         }
       } else if (gameStep === 4) {
-        addOutput("Mission already completed. Type 'exit' to end session.");
+        addOutput("Mission already completed. Please wait or type 'exit'.");
         if (command === "exit") {
           addOutput("Logging out... Goodbye!");
         }
       }
     }
     
-    // Helper to progress steps if needed (used with abilities)
     function nextStep() {
       if (gameStep === 2) {
         addOutput("Type 'download' or 'copy data' to extract the files.");
@@ -383,9 +421,6 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     }
     
-    /************************************************************
-     *                PLAYER INPUT LISTENER                   *
-     ************************************************************/
     input.addEventListener("keydown", function(event) {
       if (event.key === "Enter" && gameActive) {
         event.preventDefault();
